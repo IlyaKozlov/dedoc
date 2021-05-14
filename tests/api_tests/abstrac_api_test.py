@@ -46,7 +46,7 @@ class AbstractTestApiDocReader(unittest.TestCase):
             self.assertEqual(expected_code, r.status_code)
             if expected_code != 200:
                 return None
-            if "return_html" in data and data["return_html"]:
+            if "return_format" in data and data["return_format"] and data["return_format"] != "json":
                 return r.content.decode()
             else:
                 return json.loads(r.content.decode())
