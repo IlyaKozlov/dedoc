@@ -11,6 +11,8 @@ from dedoc.readers.utils.hierarch_level_extractor import HierarchyLevelExtractor
 
 from typing import Optional
 
+from dedoc.structure_parser.heirarchy_level import HierarchyLevel
+
 
 class PptxReader(BaseReader):
     def __init__(self):
@@ -30,6 +32,15 @@ class PptxReader(BaseReader):
              parameters: Optional[dict] = None) -> UnstructuredDocument:
         prs = Presentation(path)
         lines, tables = [], []
+        lines.append(LineWithMeta(
+            line='',
+            hierarchy_level=HierarchyLevel.create_root(),
+            metadata=ParagraphMetadata(paragraph_type=HierarchyLevel.root,
+                                       predicted_classes=None,
+                                       page_id=0,
+                                       line_id=0),
+            annotations=[]
+        ))
 
         for page_id, slide in enumerate(prs.slides, start=1):
             for paragraph_id, shape in enumerate(slide.shapes, start=1):
@@ -39,12 +50,16 @@ class PptxReader(BaseReader):
                                                  predicted_classes=None,
                                                  page_id=page_id,
                                                  line_id=paragraph_id)
-                    lines.append(LineWithMeta(line=shape.text, hierarchy_level=None, metadata=metadata, annotations=[]))
+                    lines.append(LineWithMeta(line=shape.text + "\n",
+                                              hierarchy_level=HierarchyLevel.create_raw_text(),
+                                              metadata=metadata,
+                                              annotations=[]))
 
                 if shape.has_table:
                     cells = [[cell.text for cell in row.cells] for row in shape.table.rows]
                     metadata = TableMetadata(page_id=page_id)
                     tables.append(Table(cells=cells, metadata=metadata))
-
-        lines = self.hierarchy_level_extractor.get_hierarchy_level(lines)
+        for line in lines:
+            if line.hierarchy_level.paragraph_type == HierarchyLevel.raw_text:
+                line.hierarchy_level.can_be_multiline = len(line.line.strip()) == 0
         return UnstructuredDocument(lines=lines, tables=tables, attachments=[], warnings=[])

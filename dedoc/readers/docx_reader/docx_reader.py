@@ -39,6 +39,8 @@ class DocxReader(BaseReader):
 
     def __fix_lines(self, lines: List[LineWithMeta]) -> List[LineWithMeta]:
         for i, line in enumerate(lines[1:]):
+            if line.hierarchy_level.paragraph_type == HierarchyLevel.raw_text:
+                line.hierarchy_level.can_be_multiline = len(line.line.strip()) == 0
             if lines[i].hierarchy_level != line.hierarchy_level:
                 continue
 

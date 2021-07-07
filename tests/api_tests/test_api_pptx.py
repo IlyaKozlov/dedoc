@@ -5,10 +5,10 @@ class TestApiExcelReader(AbstractTestApiDocReader):
 
     def __check_content(self, content):
         subparagraphs = content['structure']['subparagraphs']
-        self.assertEqual('A long time ago in a galaxy far far away ', subparagraphs[0]['text'])
-        self.assertEqual('Example', subparagraphs[1]['text'])
-        self.assertEqual('Some author', subparagraphs[2]['text'])
-        self.assertEqual('This is simple table', subparagraphs[3]['text'])
+        self.assertEqual('A long time ago in a galaxy far far away', subparagraphs[0]['text'].strip())
+        self.assertEqual('Example', subparagraphs[1]['text'].strip())
+        self.assertEqual('Some author', subparagraphs[2]['text'].strip())
+        self.assertEqual('This is simple table', subparagraphs[3]['text'].strip())
 
         table = content['tables'][0]['cells']
         self.assertEqual('', table[0][0])
