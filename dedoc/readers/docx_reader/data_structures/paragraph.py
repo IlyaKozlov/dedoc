@@ -35,6 +35,7 @@ class Paragraph(BaseProperties):
         self.spacing = 0
 
         self.xml = xml
+        self.toc = False
         super().__init__(styles_extractor)
         self.parse()
         self.uid = uid

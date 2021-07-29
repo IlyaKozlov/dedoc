@@ -181,3 +181,25 @@ class TestAnyDocReader(unittest.TestCase):
                 if annotation.name == "attachment":
                     annotation_found = True
             self.assertTrue(annotation_found)
+
+    def test_toc(self):
+        any_doc_reader = DocxReader()
+        path = os.path.join(os.path.dirname(__file__), "data/pr14tz_v5_2007_03_01.docx")
+        result = any_doc_reader.read(path)
+        for line in result.lines[34:62]:
+            annotation_found = False
+            for annotation in line.annotations:
+                if annotation.name == "toc":
+                    annotation_found = True
+                    break
+            self.assertTrue(annotation_found)
+
+        path = os.path.join(os.path.dirname(__file__), "data/with_toc.docx")
+        result = any_doc_reader.read(path)
+        for line in result.lines[1:3]:
+            annotation_found = False
+            for annotation in line.annotations:
+                if annotation.name == "toc":
+                    annotation_found = True
+                    break
+            self.assertTrue(annotation_found)

@@ -1,5 +1,6 @@
 import hashlib
 import os
+import re
 import zipfile
 from collections import defaultdict
 from typing import Optional, List, Dict
@@ -16,6 +17,7 @@ from dedoc.data_structures.concrete_annotations.spacing_annotation import Spacin
 from dedoc.data_structures.concrete_annotations.style_annotation import StyleAnnotation
 from dedoc.data_structures.concrete_annotations.table_annotation import TableAnnotation
 from dedoc.data_structures.concrete_annotations.attach_annotation import AttachAnnotation
+from dedoc.data_structures.concrete_annotations.toc_annotation import TocAnnotation
 from dedoc.data_structures.concrete_annotations.underlined_annotation import UnderlinedAnnotation
 from dedoc.data_structures.line_with_meta import LineWithMeta
 from dedoc.data_structures.paragraph_metadata import ParagraphMetadata
@@ -63,6 +65,9 @@ class DocxDocument:
         self.tables = []
         # the previous paragraph for spacing calculation
         self.prev_paragraph = None
+        # the beginning of TOC
+        self.toc_started = False
+        self.toc_regexp = re.compile(r"> ?(REF)|(PAGEREF)")
         self.lines = self._process_lines(hierarchy_level_extractor=hierarchy_level_extractor)
 
     def __get_bs_tree(self, filename: str) -> Optional[BeautifulSoup]:
@@ -98,12 +103,31 @@ class DocxDocument:
                               styles_extractor=self.styles_extractor,
                               numbering_extractor=self.numbering_extractor,
                               uid=uid)
+        if paragraph_xml.instrText is not None and "TOC" in paragraph_xml.instrText.text:
+            self.toc_started = True
+            paragraph.toc = True
+        elif self.toc_started and self.__is_toc_item(paragraph_xml):
+            paragraph.toc = True
+        elif self.toc_started:
+            self.toc_started = False
+
         if self.prev_paragraph is None:
             paragraph.spacing = paragraph.spacing_before
         else:
             paragraph.spacing = max(self.prev_paragraph.spacing_after, paragraph.spacing_before)
+
         self.prev_paragraph = paragraph
         return paragraph
+
+    def __is_toc_item(self, paragraph_xml: BeautifulSoup) -> bool:
+        if paragraph_xml.instrText is not None and self.toc_regexp.search(paragraph_xml.instrText.text) is not None \
+                and self.toc_started:
+            return True
+        if paragraph_xml.hyperlink is not None:
+            anchor = paragraph_xml.hyperlink.get("w:anchor", "")
+            if "_toc" in anchor.lower():
+                return True
+        return False
 
     def __get_images_rels(self, rels: BeautifulSoup) -> Dict[str, str]:
         media_ids = dict()
@@ -148,6 +172,7 @@ class DocxDocument:
                 "spacing": SpacingAnnotation,
                 "alignment": AlignmentAnnotation,
                 "style": StyleAnnotation,
+                "toc": TocAnnotation
             }
 
             annotations = []
