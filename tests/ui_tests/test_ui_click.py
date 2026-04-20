@@ -27,3 +27,4 @@ class TestUIClicker(unittest.TestCase):
     def _click_element(self, xpath: str):
         element = self.driver.find_element(By.XPATH, xpath)
         element.click()
+
