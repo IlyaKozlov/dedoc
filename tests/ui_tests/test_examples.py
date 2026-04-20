@@ -19,28 +19,32 @@ class TestExamples(unittest.TestCase):
     def test_useful_link(self):
         xpath = '/html/body/ul/li[1]/a'
         element = self.driver.find_element(By.XPATH, xpath)
+        tabs = self.driver.window_handles
         element.click()
 
-        self.wait_windows(self.driver, 10, 1)
-        new_tab = self.wait_windows(self.driver, self.main_tab)
-        self.driver.switch_to.window(new_tab)
+        supported_formats_tab = self.wait_windows(10, tabs)
+        self.driver.switch_to.window(supported_formats_tab)
 
         result_xpath = '/html/body/ol[1]/li[1]/a[2]'
+        self.check_result(result_xpath, supported_formats_tab)
+        pass
+
+    def check_result(self, result_xpath, supported_formats_tab):
         result_element = self.driver.find_element(By.XPATH, result_xpath)
+        tabs = self.driver.window_handles
         result_element.click()
 
-        self.wait_windows(self.driver, 10,2)
-        new_tab = self.wait_windows(self.driver, self.main_tab)
-        self.driver.switch_to.window(new_tab)
+        result_tab = self.wait_windows( 10, tabs)
+        self.driver.switch_to.window(result_tab)
 
         js_xpath = '/html/body/pre'
         js_element = self.driver.find_element(By.XPATH, js_xpath)
         json.loads(js_element.text)
-        pass
+        self.driver.close()
+        self.driver.switch_to.window(supported_formats_tab)
 
-
-    def wait_windows(self, driver, timeout, min_window):
-        WebDriverWait(driver, timeout).until(lambda d: len(d.window_handles) > min_window)
-        tabs = self.driver.window_handles
-        new_tab = [tab for tab in tabs if tab != self.main_tab][0]
+    def wait_windows(self, timeout: float, tabs: list[str]) -> str:
+        WebDriverWait(self.driver, timeout).until(lambda d: len(d.window_handles) > len(tabs))
+        new_tabs = self.driver.window_handles
+        new_tab = [tab for tab in new_tabs if tab not in tabs][0]
         return new_tab
