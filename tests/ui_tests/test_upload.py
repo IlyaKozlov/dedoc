@@ -1,28 +1,15 @@
-import unittest
 from pathlib import Path
 
-from selenium.webdriver.chrome.webdriver import WebDriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.remote.webelement import WebElement
-from selenium.webdriver.support.wait import WebDriverWait
-
-from ui_tests.pages.main_page import MainPage
+from ui_tests.ui_tests_abc import UiTests
 
 
-class TestUpload(unittest.TestCase):
-
-    def setUp(self) -> None:
-        """
-        Function that runs before tests
-        """
-        super().setUp()
-        self.driver = WebDriver()
-        self.driver.get("http://localhost:1231")
-        self.main_page= MainPage(self.driver)
+class TestUpload(UiTests):
 
     def test_upload_file(self):
         path = Path(__file__).parent.parent / "data"/ "txt" / "example.txt"
-        assert path.exists()
-        self.main_page.choose_file(path)
-        self.main_page.click_upload()
+        self.main_page.upload_file(path)
+
+    def test_upload_wrong_file(self):
+        path = Path(__file__).parent.parent / "data"/ "file.bin"
+        self.main_page.upload_file(path)
         pass

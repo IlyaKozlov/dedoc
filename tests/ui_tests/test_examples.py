@@ -1,24 +1,12 @@
-import unittest
-from selenium.webdriver.chrome.webdriver import WebDriver
-from selenium.webdriver.common.by import By
-from selenium.webdriver.remote.webelement import WebElement
-from selenium.webdriver.support.wait import WebDriverWait
 import json
 
-from ui_tests.pages.main_page import MainPage
+from selenium.webdriver.common.by import By
+from selenium.webdriver.remote.webelement import WebElement
+
+from ui_tests.ui_tests_abc import UiTests
 
 
-class TestExamples(unittest.TestCase):
-
-    def setUp(self) -> None:
-        """
-        Function that runs before tests
-        """
-        super().setUp()
-        self.driver = WebDriver()
-        self.driver.get("http://localhost:1231")
-        self.main_tab = self.driver.current_window_handle
-        self.main_page = MainPage(self.driver)
+class TestExamples(UiTests):
 
     def test_result_link(self):
         supported_formats_tab = self.main_page.click_useful_link()
@@ -61,8 +49,4 @@ class TestExamples(unittest.TestCase):
         self.driver.close()
         self.driver.switch_to.window(supported_formats_tab)
 
-
-    def tearDown(self):
-        super().tearDown()
-        self.driver.quit()
 

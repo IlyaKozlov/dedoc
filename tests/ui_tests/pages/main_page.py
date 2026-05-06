@@ -36,3 +36,8 @@ class MainPage:
         new_tabs = self._driver.window_handles
         new_tab = [tab for tab in new_tabs if tab not in tabs][0]
         return new_tab
+
+    def upload_file(self, path: Path):
+        assert path.is_file()
+        self.choose_file(path)
+        self.click_upload()
