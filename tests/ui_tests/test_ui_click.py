@@ -2,6 +2,9 @@ import unittest
 from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 
+from ui_tests.pages.main_page import MainPage
+
+
 class TestUIClicker(unittest.TestCase):
 
     def setUp(self) -> None:
