@@ -4,10 +4,10 @@ from selenium.webdriver.chrome.webdriver import WebDriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 
+from ui_tests.pages.page_abc import Page
 
-class MainPage:
-    def __init__(self, driver: WebDriver):
-        self._driver = driver
+
+class MainPage(Page):
 
     def choose_file(self, path: Path):
         xpath = '/html/body/form/div[5]/div[1]/input'
@@ -31,11 +31,6 @@ class MainPage:
         self._driver.switch_to.window(supported_formats_tab)
         return supported_formats_tab
 
-    def wait_windows(self, timeout: float, tabs: list[str]) -> str:
-        WebDriverWait(self._driver, timeout).until(lambda d: len(d.window_handles) > len(tabs))
-        new_tabs = self._driver.window_handles
-        new_tab = [tab for tab in new_tabs if tab not in tabs][0]
-        return new_tab
 
     def upload_file(self, path: Path):
         assert path.is_file()
