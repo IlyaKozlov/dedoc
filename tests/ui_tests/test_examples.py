@@ -15,13 +15,11 @@ class TestExamples(UiTests):
         self.sf_page = SupportedFormatsPage(self.driver)
 
     def test_result_link(self):
-        result_link_elements = self.driver.find_elements(By.LINK_TEXT, 'result')
-        for link in result_link_elements:
+        for link in self.sf_page.get_result_elements():
             self.check_result(link,self.supported_formats_tab)
 
     def test_result_html_link(self):
-        result_link_element = self.driver.find_elements(By.LINK_TEXT, 'result in html')
-        for link in result_link_element:
+        for link in self.sf_page.get_html_result_elements():
             self.check_result_html(link, self.supported_formats_tab)
 
 
