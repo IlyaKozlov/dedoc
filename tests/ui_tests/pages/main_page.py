@@ -5,6 +5,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait
 
 from ui_tests.pages.page_abc import Page
+from ui_tests.pages.return_format import ReturnFormat
 
 
 class MainPage(Page):
@@ -16,10 +17,15 @@ class MainPage(Page):
             str(path)
         )
 
+    def wait_result(self):
+        url = 'http://localhost:1231/upload'
+        WebDriverWait(self._driver, 3).until(lambda d: self._driver.current_url == url)
+
     def click_upload(self):
         xpath = '/html/body/form/div[5]/div[2]/input'
         element = self._driver.find_element(By.XPATH, xpath)
         element.click()
+        self.wait_result()
 
     def click_useful_link(self) -> str:
         xpath = '/html/body/ul/li[1]/a'
@@ -36,3 +42,18 @@ class MainPage(Page):
         assert path.is_file()
         self.choose_file(path)
         self.click_upload()
+
+    def chose_return_format(self, format: ReturnFormat):
+        ret_form_xpath = '/html/body/form/div[1]/details/p[5]/label/select'
+        format_dropdown = self._driver.find_element(By.XPATH, ret_form_xpath)
+        if not format_dropdown.is_displayed():
+            open_xpath = '/html/body/form/div[1]/details/summary'
+            element = self._driver.find_element(By.XPATH, open_xpath)
+            element.click()
+
+        format_dropdown.click()
+
+        chose_xpath = f'/html/body/form/div[1]/details/p[5]/label/select/option[{format.value}]'
+        element = self._driver.find_element(By.XPATH, chose_xpath)
+        element.click()
+        pass
