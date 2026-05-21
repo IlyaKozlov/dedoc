@@ -33,9 +33,3 @@ class TestReturnFormats(UiTests):
             ParsedDocument.model_validate(result)
             self.driver.back()
 
-    def _upload_file(self,format:ReturnFormat):
-        self.main_page.chose_return_format(format)
-        file = Path(__file__).parent / ".." / "data" / "txt" / "example.txt"
-        file = file.resolve()
-        assert file.is_file()
-        self.main_page.upload_file(file)
